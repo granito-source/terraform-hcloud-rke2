@@ -18,11 +18,11 @@ module "cluster" {
 }
 
 module "dns" {
+  count        = local.setup_dns ? 1 : 0
   source = "./modules/hdns"
   providers = {
     hcloud = hcloud.dns
   }
-  count        = local.setup_dns ? 1 : 0
   zone         = var.domain
   cluster_name = var.cluster_name
   lb_ipv4      = module.cluster.lb_ipv4
@@ -38,9 +38,9 @@ module "ccm" {
 }
 
 module "csi" {
+  count                 = var.use_hcloud_storage ? 1 : 0
   depends_on            = [module.ccm]
   source                = "./modules/hcloud_csi"
-  count                 = var.use_hcloud_storage ? 1 : 0
   hcloud_csi_version    = var.hcloud_csi_version
   hcloud_secret         = module.ccm.hcloud_secret
   default_storage_class = !var.use_longhorn
@@ -57,10 +57,10 @@ module "cert_manager" {
 }
 
 module "headlamp" {
+  count            = var.use_headlamp ? 1 : 0
   depends_on       = [module.ccm]
   source           = "granito-source/headlamp/kubernetes"
   version          = "~> 0.2.1"
-  count            = var.use_headlamp ? 1 : 0
   headlamp_version = var.headlamp_version
   host             = "headlamp.${module.cluster.fqdn}"
   ingress_class    = module.cluster.ingress_class
@@ -68,10 +68,10 @@ module "headlamp" {
 }
 
 module "longhorn" {
+  count                 = var.use_longhorn ? 1 : 0
   depends_on            = [module.ccm]
   source                = "granito-source/longhorn/kubernetes"
   version               = "~> 0.3.1"
-  count                 = var.use_longhorn ? 1 : 0
   longhorn_version      = var.longhorn_version
   host                  = "longhorn.${module.cluster.fqdn}"
   password              = var.longhorn_password

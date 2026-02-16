@@ -15,12 +15,13 @@ resource "helm_release" "hcloud_ccm" {
   repository = "https://charts.hetzner.cloud"
   chart      = "hcloud-cloud-controller-manager"
   version    = var.hcloud_ccm_version
+  atomic     = true
   values = [
     <<-EOT
         kind: DaemonSet
         nodeSelector:
           kubernetes.io/os: linux
-          node-role.kubernetes.io/master: "true"
+          node-role.kubernetes.io/control-plane: "true"
         env:
           HCLOUD_TOKEN:
             valueFrom:

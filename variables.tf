@@ -7,7 +7,7 @@ variable "hcloud_token" {
 variable "hdns_token" {
   type        = string
   sensitive   = true
-  default     = null
+  default     = ""
   description = "Hetzner Cloud API token for DNS"
 }
 
@@ -65,7 +65,7 @@ variable "agent_count" {
 
 variable "image" {
   type        = string
-  default     = "ubuntu-22.04"
+  default     = "ubuntu-24.04"
   description = "image to use for the servers"
 }
 

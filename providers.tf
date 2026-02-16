@@ -21,7 +21,7 @@ provider "hcloud" {
 
 provider "hcloud" {
   alias = "dns"
-  token = var.hdns_token != null ? var.hdns_token : var.hcloud_token
+  token = var.hdns_token
 }
 
 resource "terraform_data" "kubernetes" {

@@ -42,7 +42,7 @@ spec:
     controller:
       nodeSelector:
         kubernetes.io/os: linux
-        node-role.kubernetes.io/master: "true"
+        node-role.kubernetes.io/control-plane: "true"
       config:
         use-forwarded-headers: "true"
 EOF
