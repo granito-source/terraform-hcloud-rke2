@@ -18,7 +18,10 @@ module "cluster" {
 }
 
 module "dns" {
-  source       = "./modules/hdns"
+  source = "./modules/hdns"
+  providers = {
+    hcloud = hcloud.dns
+  }
   count        = local.setup_dns ? 1 : 0
   zone         = var.domain
   cluster_name = var.cluster_name

@@ -1,8 +1,8 @@
 terraform {
   required_providers {
-    hetznerdns = {
-      source  = "germanbrew/hetznerdns"
-      version = ">= 3.4.7"
+    hcloud = {
+      source  = "hetznercloud/hcloud"
+      version = ">= 1.60.1"
     }
   }
 }

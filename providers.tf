@@ -2,11 +2,7 @@ terraform {
   required_providers {
     hcloud = {
       source  = "hetznercloud/hcloud"
-      version = "~> 1.52.0"
-    }
-    hetznerdns = {
-      source  = "germanbrew/hetznerdns"
-      version = "~> 3.4.7"
+      version = "~> 1.60.1"
     }
     kubectl = {
       source  = "gavinbunney/kubectl"
@@ -23,8 +19,9 @@ provider "hcloud" {
   token = var.hcloud_token
 }
 
-provider "hetznerdns" {
-  api_token = var.hdns_token
+provider "hcloud" {
+  alias = "dns"
+  token = var.hdns_token != null ? var.hdns_token : var.hcloud_token
 }
 
 resource "terraform_data" "kubernetes" {
