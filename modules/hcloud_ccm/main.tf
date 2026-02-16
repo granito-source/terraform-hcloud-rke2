@@ -1,4 +1,4 @@
-resource "kubernetes_secret" "hcloud" {
+resource "kubernetes_secret_v1" "hcloud" {
   metadata {
     namespace = "kube-system"
     name      = "hcloud"
@@ -25,7 +25,7 @@ resource "helm_release" "hcloud_ccm" {
           HCLOUD_TOKEN:
             valueFrom:
               secretKeyRef:
-                name: ${kubernetes_secret.hcloud.metadata[0].name}
+                name: ${kubernetes_secret_v1.hcloud.metadata[0].name}
                 key: token
         networking:
           enabled: true
@@ -33,7 +33,7 @@ resource "helm_release" "hcloud_ccm" {
           network:
             valueFrom:
               secretKeyRef:
-                name: ${kubernetes_secret.hcloud.metadata[0].name}
+                name: ${kubernetes_secret_v1.hcloud.metadata[0].name}
                 key: network
         EOT
   ]
