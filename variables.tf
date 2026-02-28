@@ -31,7 +31,7 @@ variable "service_cidr" {
 
 variable "location" {
   type        = string
-  default     = "nbg1"
+  default     = "hel1"
   description = "Hetzner location for the cluster"
 }
 
@@ -47,13 +47,13 @@ variable "cluster_name" {
 
 variable "master_type" {
   type        = string
-  default     = "cax11"
+  default     = "cx23"
   description = "machine type to use for the master servers"
 }
 
 variable "agent_type" {
   type        = string
-  default     = "cax11"
+  default     = "cx23"
   description = "machine type to use for the agents"
 }
 
