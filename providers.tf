@@ -4,10 +4,6 @@ terraform {
       source  = "hetznercloud/hcloud"
       version = "~> 1.60.1"
     }
-    kubectl = {
-      source  = "gavinbunney/kubectl"
-      version = "~> 1.19.0"
-    }
     remote = {
       source  = "tenstad/remote"
       version = "~> 0.2.1"
@@ -34,13 +30,6 @@ resource "terraform_data" "kubernetes" {
 }
 
 provider "kubernetes" {
-  host                   = terraform_data.kubernetes.output.host
-  cluster_ca_certificate = terraform_data.kubernetes.output.cluster_ca_certificate
-  client_certificate     = terraform_data.kubernetes.output.client_certificate
-  client_key             = terraform_data.kubernetes.output.client_key
-}
-
-provider "kubectl" {
   host                   = terraform_data.kubernetes.output.host
   cluster_ca_certificate = terraform_data.kubernetes.output.cluster_ca_certificate
   client_certificate     = terraform_data.kubernetes.output.client_certificate

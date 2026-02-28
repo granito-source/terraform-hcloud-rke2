@@ -87,88 +87,14 @@ variable "hcloud_csi_version" {
   description = "Hetzner Cloud CSI driver version"
 }
 
-variable "cert_manager_version" {
-  type        = string
-  default     = null
-  description = "cert-manager Helm chart version"
-}
-
-variable "longhorn_version" {
-  type        = string
-  default     = null
-  description = "Longhorn Helm chart version"
-}
-
-variable "headlamp_version" {
-  type        = string
-  default     = null
-  description = "Headlamp Helm chart version"
-}
-
 variable "write_config_files" {
   type        = bool
   default     = false
   description = "write SSK private key and client config if true"
 }
 
-variable "acme_email" {
-  type        = string
-  default     = null
-  description = "Let's Encrypt ACME registration e-mail; if set it will create the cluster issuer"
-}
-
-variable "use_staging_issuer" {
+variable "hcloud_storage_is_default" {
   type        = bool
   default     = false
-  description = "Use a staging issuer for the cert-manager"
-}
-
-variable "use_hcloud_storage" {
-  type        = bool
-  default     = false
-  description = "deploy Hetzner Cloud CSI driver if true"
-}
-
-variable "use_longhorn" {
-  type        = bool
-  default     = false
-  description = "deploy Longhorn distributed block storage if true"
-}
-
-variable "longhorn_password" {
-  type        = string
-  default     = null
-  sensitive   = true
-  description = "password for Longhorn UI"
-}
-
-variable "longhorn_backup_target" {
-  type        = string
-  default     = null
-  description = "Longhorn S3 backup target"
-}
-
-variable "longhorn_aws_endpoints" {
-  type        = string
-  default     = null
-  description = "Longhorn S3 backup endpoints, must be defined if not using AWS"
-}
-
-variable "longhorn_aws_access_key_id" {
-  type        = string
-  default     = null
-  description = "Longhorn S3 backup access key ID"
-}
-
-variable "longhorn_aws_secret_access_key" {
-  type        = string
-  sensitive   = true
-  default     = null
-  description = "Longhorn S3 backup secret access key"
-}
-
-variable "use_headlamp" {
-  type        = bool
-  default     = false
-  description = "deploy Headlamp Kubernetes UI if true"
+  description = "make Hetzner storage class default"
 }

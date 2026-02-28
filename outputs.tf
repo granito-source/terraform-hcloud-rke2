@@ -27,11 +27,3 @@ output "kubeconfig" {
   value     = local.kubeconfig
   sensitive = true
 }
-
-output "headlamp_url" {
-  value = var.use_headlamp ? module.headlamp[0].url : null
-}
-
-output "longhorn_url" {
-  value = var.use_longhorn ? module.longhorn[0].url : null
-}
