@@ -23,8 +23,8 @@ cat <<EOF >/var/lib/rancher/rke2/server/manifests/rke2-cilium-config.yaml
 apiVersion: helm.cattle.io/v1
 kind: HelmChartConfig
 metadata:
-  name: rke2-cilium
   namespace: kube-system
+  name: rke2-cilium
 spec:
   valuesContent: |-
     routingMode: native
@@ -35,8 +35,8 @@ cat <<EOF >/var/lib/rancher/rke2/server/manifests/rke2-ingress-nginx-config.yaml
 apiVersion: helm.cattle.io/v1
 kind: HelmChartConfig
 metadata:
-  name: rke2-ingress-nginx
   namespace: kube-system
+  name: rke2-ingress-nginx
 spec:
   valuesContent: |-
     controller:
@@ -45,6 +45,74 @@ spec:
         node-role.kubernetes.io/control-plane: "true"
       config:
         use-forwarded-headers: "true"
+EOF
+
+cat <<EOF >/var/lib/rancher/rke2/server/manifests/hcloud.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  namespace: kube-system
+  name: hcloud
+type: Opaque
+stringData:
+  network: ${network_name}
+  token: ${hcloud_token}
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  namespace: kube-system
+  name: hcloud-ccm
+spec:
+  bootstrap: true
+  targetNamespace: kube-system
+  repo: https://charts.hetzner.cloud
+  chart: hcloud-cloud-controller-manager
+%{ if hcloud_ccm_version != null ~}
+  version: ${hcloud_ccm_version}
+%{ endif ~}
+  valuesContent: |-
+    kind: DaemonSet
+    nodeSelector:
+      kubernetes.io/os: linux
+      node-role.kubernetes.io/control-plane: "true"
+    env:
+      HCLOUD_TOKEN:
+        valueFrom:
+          secretKeyRef:
+            name: hcloud
+            key: token
+    networking:
+      enabled: true
+      clusterCIDR: ${cluster_cidr}
+      network:
+        valueFrom:
+          secretKeyRef:
+            name: hcloud
+            key: network
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  namespace: kube-system
+  name: hcloud-csi
+spec:
+  targetNamespace: kube-system
+  repo: https://charts.hetzner.cloud
+  chart: hcloud-csi
+%{ if hcloud_csi_version != null ~}
+  version: ${hcloud_csi_version}
+%{ endif ~}
+  valuesContent: |-
+    controller:
+      hcloudToken:
+        existingSecret:
+          name: hcloud
+          key: token
+    storageClasses:
+      - name: hcloud
+        defaultStorageClass: false
+        reclaimPolicy: Delete
 EOF
 
 SUPERVISOR_URL=https://${lb_ip}:9345

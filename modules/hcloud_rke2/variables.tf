@@ -1,3 +1,9 @@
+variable "hcloud_token" {
+  type        = string
+  sensitive   = true
+  description = "Hetzner Cloud API token"
+}
+
 variable "network_name" {
   type        = string
   default     = "private"
@@ -70,4 +76,16 @@ variable "agent_count" {
 variable "image" {
   type        = string
   description = "image to use for the servers"
+}
+
+variable "hcloud_ccm_version" {
+  type        = string
+  default     = null
+  description = "Cloud Controller Manager for Hetzner Cloud version"
+}
+
+variable "hcloud_csi_version" {
+  type        = string
+  default     = null
+  description = "Hetzner Cloud CSI driver version"
 }
