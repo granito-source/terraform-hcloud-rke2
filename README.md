@@ -8,15 +8,17 @@ minimum you will get out of the box:
 * a highly available RKE2 cluster with three master nodes;
 * a load balancer for the cluster's API and HTTP/HTTPS ingress traffic;
 * [Hetzner Cloud Controller Manager](https://github.com/hetznercloud/hcloud-cloud-controller-manager);
+* [Hetzner Cloud CSI Driver](https://github.com/hetznercloud/csi-driver);
 * [Ingress NGINX Controller](https://kubernetes.github.io/ingress-nginx/)
-  configured to work with the load balancer;
-* [cert-manager](https://cert-manager.io/).
+  configured to work with the load balancer.
+
+Optionally, you'll get DNS records for the cluster in Hetzner DNS.
 
 ## What You Need
 
-* Hetzner Cloud account and read/write API token;
-* (optionally) Hetzner DNS API token with access to the cluster's
-  DNS zone;
+* Hetzner Cloud account and read/write API tokens (you may choose have
+  your DNS zone in a separate Hetzner project and therefore use a
+  diferent token just for DNS);
 * Terraform or [OpenTofu](https://opentofu.org/) CLI client.
 
 ## Basic Configuration
@@ -97,14 +99,14 @@ agent_count = 5
 
 You can specify the server type and the image to use for the nodes as
 well as the location where create the nodes. By default,
-the configuration uses `cax11` machines running `ubuntu-22.04` image
-at `nbg1` Hetzner location.
+the configuration uses `cx23` machines running `ubuntu-24.04` image
+at `hel1` Hetzner location.
 
 ```hcl
 location    = "fsn1"
 master_type = "cax21"
 agent_type  = "cax31"
-image       = "ubuntu-20.04"
+image       = "ubuntu-22.04"
 ```
 
 ### DNS
@@ -117,7 +119,9 @@ load balancer.
 hdns_token = "hetzner-dns-token"
 ```
 
-This will create the following records:
+If you use the same project to manage the cluster and the DNS zone,
+you may use the same token for the DNS. This will create the following
+records:
 
 ```
 *.mycluster.mydomain.tld.   300 A       <load balancer's IPv4>
@@ -131,63 +135,15 @@ of the IP address of the load balancer.
 
 The applications hosted in the cluster and using ingress objects
 to provide access to them, can use URLs similar to this one:
-<https://myapp.mycluster.mydomain.tld/>. The certificate for the name can
-be obtained using `lets-encrypt` cluster issuer.
+<https://myapp.mycluster.mydomain.tld/>.
 
-### Additional Services
+### Storage
 
-You can configure a [Let's Encrypt](https://duckduckgo.com/) cluster
-issuer by specifying this variable. You probably want this as it will
-be used to protect web UI URLs of the services listed below.
+The module configures Hetzner CSI driver to access cloud block storage.
+You can set the following to make the Hetzner storage class default.
 
 ```hcl
-acme_email = "my.mail@mydomain.tld"
-```
-
-The configuration can deploy the following additional cluster services
-by setting their corresponding variable values to `true`.
-
-```hcl
-use_hcloud_storage = true // use Hetzner Cloud CSI driver
-use_longhorn       = true // use Longhorn distributed block storage
-use_headlamp       = true // use Headlamp Kubernetes UI
-```
-
-If only Hetzner Cloud CSI driver is deployed, `hcloud` storage class
-becomes the default one for the cluster. If
-[Longhorn](https://longhorn.io/) is deployed, by itself or in addition
-to Hetzner Cloud CSI driver, then `longhorn` storage class becomes
-the default.
-
-Longhorn UI will be available at
-<https://longhorn.mycluster.mydomain.tld/> protected by Basic
-authentication is you provide a password for it. The username is
-`longhorn`.
-
-```hcl
-longhorn_password = "L0nGHo7n"
-```
-
-It is essential to configure a backup target to be used by Longhorn in
-production deployments. The configuration supports S3 target. Use
-the following variables to configure it.
-
-```hcl
-longhorn_backup_target         = "s3://mycluster@us-east/"
-longhorn_aws_endpoints         = "https://s3.provider.tld"
-longhorn_aws_access_key_id     = "accessKeyId"
-longhorn_aws_secret_access_key = "SecretAccessKey"
-```
-
-Providing `longhorn_aws_endpoints` is optional.
-
-[Headlamp](https://headlamp.dev/) UI will be available at
-<https://headlamp.mycluster.mydomain.tld/>. You can get the
-authentication token for it by running:
-
-```shell
-kubectl create token headlamp -n headlamp \
-    --kubeconfig=config-mycluster.yaml
+hcloud_storage_is_default = true
 ```
 
 ### Software Versions
@@ -196,11 +152,9 @@ You can control what versions of software to deploy by setting these
 variables.
 
 ```hcl
-rke2_version         = "v1.27.11+rke2r1"
-hcloud_ccm_version   = "1.19.0"
-hcloud_csi_version   = "2.6.0"
-cert_manager_version = "v1.14.4"
-longhorn_version     = "1.5.4"
+rke2_version       = "v1.35.1+rke2r1"
+hcloud_ccm_version = "1.30.1"
+hcloud_csi_version = "2.20.0"
 ```
 
 The version of Ingress NGINX Controller is controlled by the
@@ -280,7 +234,7 @@ Then finish the work by applying the remaining changes. This will destroy
 the original node.
 
 ```shell
-terraform apply -replace 'module.cluster.random_string.agent[2]'
+terraform apply
 ```
 
 ### Destroying the Cluster
@@ -299,10 +253,3 @@ The original code in this repository comes from Sven Mattsen,
 <https://github.com/scm2342/rke2-build-hetzner>. Further development
 was influenced by ideas picked up from Felix Wenzel,
 <https://github.com/wenzel-felix/terraform-hcloud-rke2>.
-
-
-```shell
-tofu apply -replace 'module.cluster.random_string.master[0]' -target module.cluster
-tofu apply -target terraform_data.client_certificate
-tofu apply -target terraform_data.client_key
-```
