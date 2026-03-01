@@ -1,4 +1,14 @@
 data "remote_file" "kubeconfig" {
+  count = length(data.hcloud_servers.master.servers) > 0 ? 1 : 0
+  path  = "/etc/rancher/rke2/rke2.yaml"
+  conn {
+    host        = data.hcloud_servers.master.servers[0].ipv4_address
+    user        = "root"
+    private_key = tls_private_key.root.private_key_openssh
+  }
+}
+
+data "remote_file" "new_kubeconfig" {
   path = "/etc/rancher/rke2/rke2.yaml"
   conn {
     host        = hcloud_server.master0.ipv4_address
@@ -8,7 +18,9 @@ data "remote_file" "kubeconfig" {
 }
 
 resource "terraform_data" "kubeconfig" {
-  input = yamldecode(data.remote_file.kubeconfig.content)
+  input = yamldecode(length(data.remote_file.kubeconfig) > 0 ?
+    data.remote_file.kubeconfig[0].content :
+    data.remote_file.new_kubeconfig.content)
 }
 
 locals {

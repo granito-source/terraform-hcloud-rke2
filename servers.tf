@@ -15,6 +15,11 @@ resource "random_string" "master" {
   special = false
 }
 
+data "hcloud_servers" "master" {
+  with_selector = "cluster=${var.cluster_name},master=true"
+  with_status = ["running"]
+}
+
 resource "hcloud_server" "master0" {
   depends_on  = [hcloud_network_subnet.nodes]
   name        = "${var.cluster_name}-master-${random_string.master[0].id}"
@@ -26,7 +31,7 @@ resource "hcloud_server" "master0" {
   user_data = templatefile("${path.module}/master_setup.sh.tpl", {
     rke2_version       = var.rke2_version
     token              = random_password.token.result
-    initial            = !local.lb_deployed
+    initial            = length(data.hcloud_servers.master.servers) == 0
     hcloud_token       = var.hcloud_token
     network_name       = var.network_name
     hcloud_ccm_version = var.hcloud_ccm_version

@@ -96,7 +96,3 @@ resource "hcloud_load_balancer_service" "https" {
 data "hcloud_load_balancers" "cluster" {
   with_selector = "cluster=${var.cluster_name}"
 }
-
-locals {
-  lb_deployed = length(data.hcloud_load_balancers.cluster.load_balancers) > 0
-}
