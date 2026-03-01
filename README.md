@@ -23,17 +23,83 @@ Optionally, you'll get DNS records for the cluster in Hetzner DNS.
 
 ## Basic Configuration
 
-Create `terraform.tfvars` containing at least the following
-variable values.
+In your Terraform project configure the following variables. Add their
+values to `terraform.tfvars`. Variable `hdns_token` needs a value if you
+want to manage cluster's records in Hetzner DNS. It may be the same as
+`hcloud_token`, in which case it would expect the DNS zone to be in
+the same project as the cluster's resources.
 
 ```hcl
-domain       = "mydomain.tld"
-cluster_name = "mycluster"
-hcloud_token = "hetzner-cloud-token"
+variable "hcloud_token" {
+  type        = string
+  sensitive   = true
+  description = "Hetzner Cloud API token"
+}
+
+variable "hdns_token" {
+  type        = string
+  sensitive   = true
+  default     = ""
+  description = "Hetzner Cloud API token for DNS"
+}
 ```
 
-Obviously, use your own values. You don't need to own the listed domain
-if you don't plan to provision DNS records (see below).
+Configure providers used by the module. Adjust the versions if desired.
+
+```hcl
+terraform {
+  required_providers {
+    hcloud = {
+      source  = "hetznercloud/hcloud"
+      version = "~> 1.60.1"
+    }
+    remote = {
+      source  = "tenstad/remote"
+      version = "~> 0.2.1"
+    }
+  }
+}
+
+provider "hcloud" {
+  token = var.hcloud_token
+}
+
+provider "hcloud" {
+  alias = "dns"
+  token = var.hdns_token
+}
+```
+
+Reference the module in the project's code.
+
+```hcl
+module "rke2" {
+  source  = "granito-source/rke2/hcloud"
+  version = "0.4.0"
+  providers = {
+    hcloud     = hcloud
+    hcloud.dns = hcloud.dns
+  }
+  hcloud_token = var.hcloud_token
+  setup_dns    = var.hdns_token != ""
+  cluster_name = "mycluster"
+  domain       = "mydomain.tld"
+}
+```
+
+Configure the outputs.
+
+```hcl
+output "kubeconfig" {
+  value     = module.rke2.kubeconfig
+  sensitive = true
+}
+
+output "ssh_private_key" {
+  value     = module.rke2.ssh_private_key
+  sensitive = true
+}
+```
 
 Initialize Terraform.
 
@@ -47,48 +113,22 @@ Apply the configuration.
 terraform apply
 ```
 
-This will create an RKE2 cluster and output the information about
-the load balancer and node information.
+This will create an RKE2 cluster. The module's outputs can be used
+as inputs to the rest of your infrastructure. To access the cluster's
+API or the cluster's nodes, you can extract the content of the
+configuration files using `output` command.
+
+```shell
+terraform output -raw kubeconfig >kubeconfig.yaml
+terraform output -raw ssh_private_key >id_rsa
+```
 
 ## Customizations
-
-### Config Files
-
-For convenience, you can ask the configuration to store the SSH
-private key, `id_rsa_mycluster`, as well as Kubernetes configuration
-file, `config-mycluster.yaml`, in the current folder.
-Note: _mycluster_ in the name comes from `cluster_name` variable in
-the configuration.
-
-```hcl
-write_config_files = true
-```
-
-Then you can access cluster's nodes using the following command.
-
-```shell
-ssh -l root -i id_rsa_mycluster <node IP>
-```
-
-Make sure the load balancer is healthy. You can access the cluster using
-Kubernetes CLI.
-
-```shell
-kubectl get nodes --kubeconfig=config-mycluster.yaml
-```
-
-Alternatively, you can extract the content of the files using
-`output` command.
-
-```shell
-terraform output -raw kubeconfig >~/.kube/config
-terraform output -raw ssh_private_key >~/.ssh/id_rsa
-```
 
 ### Agent Nodes
 
 You can create additional agent nodes in the cluster by specifying
-`agent_count` value. This value can be adjusted after the initial
+`agent_count` parameter. This value can be adjusted after the initial
 cluster creation.
 
 ```hcl
@@ -113,11 +153,7 @@ image       = "ubuntu-22.04"
 
 If you own the DNS zone for the cluster and host it in Hetzner DNS,
 you can provision `A` and `AAAA` wildcard records for the cluster's
-load balancer.
-
-```hcl
-hdns_token = "hetzner-dns-token"
-```
+load balancer. For that provide the value for `hdns_token` variable.
 
 If you use the same project to manage the cluster and the DNS zone,
 you may use the same token for the DNS. This will create the following
@@ -137,15 +173,6 @@ The applications hosted in the cluster and using ingress objects
 to provide access to them, can use URLs similar to this one:
 <https://myapp.mycluster.mydomain.tld/>.
 
-### Storage
-
-The module configures Hetzner CSI driver to access cloud block storage.
-You can set the following to make the Hetzner storage class default.
-
-```hcl
-hcloud_storage_is_default = true
-```
-
 ### Software Versions
 
 You can control what versions of software to deploy by setting these
@@ -156,6 +183,9 @@ rke2_version       = "v1.35.1+rke2r1"
 hcloud_ccm_version = "1.30.1"
 hcloud_csi_version = "2.20.0"
 ```
+
+These values only matter during the initial cluster creation or when
+you rebuild the cluster nodes (see below).
 
 The version of Ingress NGINX Controller is controlled by the
 RKE2 version (see RKE2 Release Notes).
@@ -216,26 +246,6 @@ The procedure follows.
    `module.cluster.random_string.master` instances. Monitor the cluster
    to ensure the workloads are stable before proceeding to replace
    another node.
-
-**Important:** Because `master[0]` node is used to retrieve the cluster's
-configuration file, and the configuration is needed to read the cluster's
-resources, an attempt to replace the node using the procedure outlined
-above creates a failure during the planning phase. In order to execute
-the node replacement cleanly, the third step needs to be done in two parts.
-First, replace the node but avoid propagating changes to the cluster's
-configuration to the providers that use it.
-
-```shell
-terraform apply -replace 'module.cluster.random_string.master[0]' \
-   -target terraform_data.kubernetes
-```
-
-Then finish the work by applying the remaining changes. This will destroy
-the original node.
-
-```shell
-terraform apply
-```
 
 ### Destroying the Cluster
 
