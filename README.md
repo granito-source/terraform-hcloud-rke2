@@ -223,7 +223,7 @@ resources, an attempt to replace the node using the procedure outlined
 above creates a failure during the planning phase. In order to execute
 the node replacement cleanly, the third step needs to be done in two parts.
 First, replace the node but avoid propagating changes to the cluster's
-configuration to the providers that use the it.
+configuration to the providers that use it.
 
 ```shell
 terraform apply -replace 'module.cluster.random_string.master[0]' \

@@ -4,6 +4,12 @@ variable "hcloud_token" {
   description = "Hetzner Cloud API token"
 }
 
+variable "setup_dns" {
+  type        = bool
+  default     = false
+  description = "use Hezner DNS to configure records for the cluster"
+}
+
 variable "domain" {
   type        = string
   description = "domain of the cluster"
@@ -12,13 +18,6 @@ variable "domain" {
 variable "cluster_name" {
   type        = string
   description = "name of the cluster"
-}
-
-variable "hdns_token" {
-  type        = string
-  sensitive   = true
-  default     = ""
-  description = "Hetzner Cloud API token for DNS"
 }
 
 variable "dns_ttl" {

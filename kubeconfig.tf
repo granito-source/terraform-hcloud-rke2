@@ -12,7 +12,7 @@ resource "terraform_data" "kubeconfig" {
 }
 
 locals {
-  api_url      = "https://${local.setup_dns ? local.api : hcloud_load_balancer.cluster.ipv4}:6443"
+  api_url      = "https://${var.setup_dns ? local.api : hcloud_load_balancer.cluster.ipv4}:6443"
   ipv4_api_url = "https://${hcloud_load_balancer.cluster.ipv4}:6443"
   kubeconfig   = <<-EOT
     apiVersion: v1
