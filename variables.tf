@@ -4,11 +4,39 @@ variable "hcloud_token" {
   description = "Hetzner Cloud API token"
 }
 
+variable "domain" {
+  type        = string
+  description = "domain of the cluster"
+}
+
+variable "cluster_name" {
+  type        = string
+  description = "name of the cluster"
+}
+
 variable "hdns_token" {
   type        = string
   sensitive   = true
   default     = ""
   description = "Hetzner Cloud API token for DNS"
+}
+
+variable "dns_ttl" {
+  type        = number
+  default     = 300
+  description = "TTL of the cluster wildcard records"
+}
+
+variable "network_name" {
+  type        = string
+  default     = "private"
+  description = "name of the network"
+}
+
+variable "network" {
+  type        = string
+  default     = "10.0.0.0/8"
+  description = "network to use"
 }
 
 variable "nodes_cidr" {
@@ -35,14 +63,10 @@ variable "location" {
   description = "Hetzner location for the cluster"
 }
 
-variable "domain" {
+variable "lb_type" {
   type        = string
-  description = "domain of the cluster"
-}
-
-variable "cluster_name" {
-  type        = string
-  description = "name of the cluster"
+  default     = "lb11"
+  description = "load balancer type"
 }
 
 variable "master_type" {
@@ -72,29 +96,17 @@ variable "image" {
 variable "rke2_version" {
   type        = string
   default     = ""
-  description = "target version of RKE2"
+  description = "version of RKE2 to install"
 }
 
 variable "hcloud_ccm_version" {
   type        = string
-  default     = null
+  default     = ""
   description = "Cloud Controller Manager for Hetzner Cloud version"
 }
 
 variable "hcloud_csi_version" {
   type        = string
-  default     = null
+  default     = ""
   description = "Hetzner Cloud CSI driver version"
-}
-
-variable "write_config_files" {
-  type        = bool
-  default     = false
-  description = "write SSK private key and client config if true"
-}
-
-variable "hcloud_storage_is_default" {
-  type        = bool
-  default     = false
-  description = "make Hetzner storage class default"
 }

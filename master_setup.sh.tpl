@@ -68,7 +68,7 @@ spec:
   targetNamespace: kube-system
   repo: https://charts.hetzner.cloud
   chart: hcloud-cloud-controller-manager
-%{ if hcloud_ccm_version != null ~}
+%{ if hcloud_ccm_version != "" ~}
   version: ${hcloud_ccm_version}
 %{ endif ~}
   valuesContent: |-
@@ -100,7 +100,7 @@ spec:
   targetNamespace: kube-system
   repo: https://charts.hetzner.cloud
   chart: hcloud-csi
-%{ if hcloud_csi_version != null ~}
+%{ if hcloud_csi_version != "" ~}
   version: ${hcloud_csi_version}
 %{ endif ~}
   valuesContent: |-
