@@ -3,7 +3,8 @@ output "lb_ipv4" {
     hcloud_load_balancer_service.k8s_api,
     hcloud_server.master0
   ]
-  value = hcloud_load_balancer.cluster.ipv4
+  value       = hcloud_load_balancer.cluster.ipv4
+  description = "IPv4 address of the load balancer"
 }
 
 output "lb_ipv6" {
@@ -11,7 +12,8 @@ output "lb_ipv6" {
     hcloud_load_balancer_service.k8s_api,
     hcloud_server.master0
   ]
-  value = hcloud_load_balancer.cluster.ipv6
+  value       = hcloud_load_balancer.cluster.ipv6
+  description = "IPv6 address of the load balancer"
 }
 
 output "fqdn" {
@@ -19,7 +21,8 @@ output "fqdn" {
     hcloud_load_balancer_service.k8s_api,
     hcloud_server.master0
   ]
-  value = local.fqdn
+  value       = local.fqdn
+  description = "Fully qualified domain name of the cluster"
 }
 
 output "api_url" {
@@ -27,7 +30,8 @@ output "api_url" {
     hcloud_load_balancer_service.k8s_api,
     hcloud_server.master0
   ]
-  value = local.api_url
+  value       = local.api_url
+  description = "URL for the cluster's API"
 }
 
 output "ipv4_api_url" {
@@ -35,30 +39,36 @@ output "ipv4_api_url" {
     hcloud_load_balancer_service.k8s_api,
     hcloud_server.master0
   ]
-  value = local.ipv4_api_url
+  value       = local.ipv4_api_url
+  description = "URL for the cluster's API using only IPv4 address"
 }
 
 output "cluster_ca_certificate" {
-  value = base64decode(terraform_data.kubeconfig.output.clusters[0].cluster.certificate-authority-data)
+  value       = base64decode(terraform_data.kubeconfig.output.clusters[0].cluster.certificate-authority-data)
+  description = "TLS certificate of the cluster"
 }
 
 output "client_certificate" {
-  value = base64decode(terraform_data.kubeconfig.output.users[0].user.client-certificate-data)
+  value       = base64decode(terraform_data.kubeconfig.output.users[0].user.client-certificate-data)
+  description = "TLS certificate of the client"
 }
 
 output "client_key" {
-  value     = base64decode(terraform_data.kubeconfig.output.users[0].user.client-key-data)
-  sensitive = true
+  value       = base64decode(terraform_data.kubeconfig.output.users[0].user.client-key-data)
+  sensitive   = true
+  description = "Private key of the client"
 }
 
 output "kubeconfig" {
-  value     = local.kubeconfig
-  sensitive = true
+  value       = local.kubeconfig
+  sensitive   = true
+  description = "Kubeconfig to access the cluster"
 }
 
 output "ssh_private_key" {
-  value     = tls_private_key.root.private_key_openssh
-  sensitive = true
+  value       = tls_private_key.root.private_key_openssh
+  sensitive   = true
+  description = "SSH private key to access the cluster's nodes"
 }
 
 output "master" {
