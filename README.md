@@ -77,7 +77,6 @@ module "rke2" {
   source  = "granito-source/rke2/hcloud"
   version = "0.4.0"
   providers = {
-    hcloud     = hcloud
     hcloud.dns = hcloud.dns
   }
   hcloud_token = var.hcloud_token
