@@ -218,8 +218,11 @@ Here is the procedure.
 ### Rebuilding a Node
 
 You can rebuild any individual node in the cluster be that an agent or
-a master node (see special procedure for `master[0]` below). A new
-node is created first and then the existing node is destroyed.
+a master node. A new node is created first and then the existing node is
+destroyed. Rebuilding all nodes one by one effectively upgrades the
+cluster, ensuring the latest Linux image and the RKE2 version is used for
+the nodes.
+
 The procedure follows.
 
 1. Obtain the information about nodes in the cluster and find the
@@ -246,6 +249,11 @@ The procedure follows.
    `module.cluster.random_string.master` instances. Monitor the cluster
    to ensure the workloads are stable before proceeding to replace
    another node.
+4. In the end perform another apply to ensure the latest Kubeconfig
+   is captured in the state.
+   ```shell
+   terraform apply
+   ```
 
 ### Destroying the Cluster
 
