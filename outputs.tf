@@ -89,6 +89,7 @@ output "master" {
       ipv6_address = hcloud_server.master2.ipv6_address
     }
   ]
+  description = "Master nodes (control plane)"
 }
 
 output "agent" {
@@ -99,6 +100,7 @@ output "agent" {
       ipv6_address = server.ipv6_address
     }
   ]
+  description = "Agent nodes"
 }
 
 output "ingress_class" {
@@ -107,5 +109,6 @@ output "ingress_class" {
     hcloud_load_balancer_service.https,
     hcloud_server.master2
   ]
-  value = "nginx"
+  value       = "nginx"
+  description = "Ingress class configured in the cluster"
 }
