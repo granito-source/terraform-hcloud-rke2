@@ -131,7 +131,7 @@ resource "hcloud_server" "master1" {
 }
 
 resource "hcloud_server" "master2" {
-  depends_on  = [hcloud_server.master1]
+  depends_on  = [hcloud_server.master0]
   name        = "${var.cluster_name}-master-${random_string.master[2].id}"
   location    = data.hcloud_location.cluster.name
   server_type = var.master_type

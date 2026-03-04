@@ -1,7 +1,9 @@
 output "lb_ipv4" {
   depends_on = [
     hcloud_load_balancer_service.k8s_api,
-    hcloud_server.master0
+    hcloud_server.master0,
+    hcloud_server.master1,
+    hcloud_server.master2
   ]
   value       = hcloud_load_balancer.cluster.ipv4
   description = "IPv4 address of the load balancer"
@@ -10,7 +12,9 @@ output "lb_ipv4" {
 output "lb_ipv6" {
   depends_on = [
     hcloud_load_balancer_service.k8s_api,
-    hcloud_server.master0
+    hcloud_server.master0,
+    hcloud_server.master1,
+    hcloud_server.master2
   ]
   value       = hcloud_load_balancer.cluster.ipv6
   description = "IPv6 address of the load balancer"
@@ -19,7 +23,9 @@ output "lb_ipv6" {
 output "fqdn" {
   depends_on = [
     hcloud_load_balancer_service.k8s_api,
-    hcloud_server.master0
+    hcloud_server.master0,
+    hcloud_server.master1,
+    hcloud_server.master2
   ]
   value       = local.fqdn
   description = "Fully qualified domain name of the cluster"
@@ -28,7 +34,9 @@ output "fqdn" {
 output "api_url" {
   depends_on = [
     hcloud_load_balancer_service.k8s_api,
-    hcloud_server.master0
+    hcloud_server.master0,
+    hcloud_server.master1,
+    hcloud_server.master2
   ]
   value       = local.api_url
   description = "URL for the cluster's API"
@@ -37,7 +45,9 @@ output "api_url" {
 output "ipv4_api_url" {
   depends_on = [
     hcloud_load_balancer_service.k8s_api,
-    hcloud_server.master0
+    hcloud_server.master0,
+    hcloud_server.master1,
+    hcloud_server.master2
   ]
   value       = local.ipv4_api_url
   description = "URL for the cluster's API using only IPv4 address"
@@ -107,6 +117,8 @@ output "ingress_class" {
   depends_on = [
     hcloud_load_balancer_service.http,
     hcloud_load_balancer_service.https,
+    hcloud_server.master0,
+    hcloud_server.master1,
     hcloud_server.master2
   ]
   value       = "nginx"
